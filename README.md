@@ -1,4 +1,4 @@
-<H1 align="center">
+<!-- <H1 align="center">
 YOLOv9 Object Detection with DeepSORT Tracking(ID + Trails) </H1>
 
 ### New Features
@@ -26,11 +26,11 @@ pip install -r requirements.txt
 - Download the pre-trained YOLOv9 model weights
 [yolov9](https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-c.pt)
 
-- Downloading the DeepSORT Files From The Google Drive 
+- Downloading the DeepSORT Files From The Google Drive
 ```
 gdown "https://drive.google.com/uc?id=11ZSZcG-bcbueXZC3rN08CM0qqX3eiHxf&confirm=t"
 ```
-- After downloading the DeepSORT Zip file from the drive, unzip it. 
+- After downloading the DeepSORT Zip file from the drive, unzip it.
 
 - Download sample videos from the Google Drive
 ```
@@ -56,8 +56,8 @@ python detect_dual_tracking.py --weights 'yolov9-c.pt' --source "your IP Camera 
 #for specific class (person)
 python detect_dual_tracking.py --weights 'yolov9-c.pt' --source 'your video.mp4' --device 0 --classes 0
 
-#for detection and tracking with trails 
-!python detect_dual_tracking.py --weights 'yolov9-c.pt' --source 'your video.mp4' --device 0 --draw-trails 
+#for detection and tracking with trails
+!python detect_dual_tracking.py --weights 'yolov9-c.pt' --source 'your video.mp4' --device 0 --draw-trails
 ```
 
 - Output file will be created in the ```working-dir/runs/detect/obj-tracking``` with original filename
@@ -69,4 +69,4 @@ python detect_dual_tracking.py --weights 'yolov9-c.pt' --source 'your video.mp4'
 
 
 [![Watch the Complete Tutorial for the Step by Step Explanation](https://img.youtube.com/vi/Jx6oLBfDxRo/0.jpg)]([https://www.youtube.com/watch?v=Jx6oLBfDxRo](https://www.youtube.com/watch?v=Jx6oLBfDxRo))
-
+ -->
