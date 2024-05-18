@@ -126,12 +126,12 @@ def draw_boxes(frame, bbox_xyxy, draw_trails, identities=None, categories=None, 
                   cv2.line(frame, data_deque[id][i - 1], data_deque[id][i], color, thickness)    
     return frame
 
-def count_people(identities, className):
-    count = 0
-    for identity in identities:
-        if 0 <= identity < len(className) and className[identity] == "person":
-            count += 1
-    return count
+# def count_people(identities, className):
+#     count = 0
+#     for identity in identities:
+#         if 0 <= identity < len(className) and className[identity] == "person":
+#             count += 1
+#     return count
 
 @smart_inference_mode()
 def run(
@@ -268,7 +268,7 @@ def run(
                     bbox_xyxy = outputs[:, :4]
                     identities = outputs[:, -2]
                     object_id = outputs[:, -1]
-                    total_people += count_people(identities, className)
+                    # total_people += count_people(identities, className)
                     draw_boxes(ims, bbox_xyxy, draw_trails, identities, object_id)
                     
                 total_label = f"Total People: {total_people}"
@@ -302,10 +302,6 @@ def run(
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
-
-        
-
-        
 
 
 def parse_opt():
