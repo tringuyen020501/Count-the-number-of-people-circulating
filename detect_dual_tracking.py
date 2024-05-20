@@ -285,7 +285,6 @@ def run(
                     if cls_name == "person" and obj_id not in person_ids:
                         person_ids.add(obj_id)
                         annotator.box_label([bbox_left, bbox_top, bbox_right, bbox_bottom], label, color=colors(class_id, True))
-
                 # Đếm số lượng người từ tập hợp person_ids
                 total_people = len(person_ids)
                 im0 = annotator.result()
@@ -294,7 +293,6 @@ def run(
                 label = f"Total People: {total_people}"
                 cv2.putText(ims, label, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
-    
             # Stream results
             if view_img:
                 if platform.system() == 'Linux' and p not in windows:
