@@ -268,12 +268,33 @@ def run(
                     bbox_xyxy = outputs[:, :4]
                     identities = outputs[:, -2]
                     object_id = outputs[:, -1]
-                    # total_people += count_people(identities, className)
                     draw_boxes(ims, bbox_xyxy, draw_trails, identities, object_id)
-                    
-                total_label = f"Total People: {total_people}"
-                draw_label(ims, total_label, position=(10, 60))    
 
+                annotator = Annotator(im0, line_width=2, pil=not ascii)
+                person_ids = set()
+                for j, output in enumerate(outputs):
+                    if j >= len(oids):
+                        continue
+                    bbox_left, bbox_top, bbox_right, bbox_bottom, identity = output[:5]
+                    obj_id = int(identity) if identity is not None else 0
+                    class_id = int(oids[j])
+                    cls_name = names[class_id]
+                    label = f"{cls_name} {obj_id}"
+                    
+                    # Thêm ID mới vào tập hợp person_ids nếu không trùng lặp với ID đã có
+                    if cls_name == "person" and obj_id not in person_ids:
+                        person_ids.add(obj_id)
+                        annotator.box_label([bbox_left, bbox_top, bbox_right, bbox_bottom], label, color=colors(class_id, True))
+
+                # Đếm số lượng người từ tập hợp person_ids
+                total_people = len(person_ids)
+                im0 = annotator.result()
+
+                # Thêm nhãn số lượng người vào hình ảnh
+                label = f"Total People: {total_people}"
+                cv2.putText(ims, label, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+    
             # Stream results
             if view_img:
                 if platform.system() == 'Linux' and p not in windows:
@@ -337,8 +358,6 @@ def parse_opt():
 def main(opt):
     # check_requirements(exclude=('tensorboard', 'thop'))
     run(**vars(opt))
-
-    
 
 
 if __name__ == "__main__":
