@@ -65,7 +65,7 @@ className = classNames()
 def draw_label(frame, text, position=(10, 30)):
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 1
-    font_color = (0, 255, 0)  # Màu xanh lá cây
+    font_color = (0, 255, 0)
     line_type = 2
 
     cv2.putText(frame, text, position, font, font_scale, font_color, line_type)
@@ -126,13 +126,6 @@ def draw_boxes(frame, bbox_xyxy, draw_trails, identities=None, categories=None, 
                   cv2.line(frame, data_deque[id][i - 1], data_deque[id][i], color, thickness)    
     return frame
 
-# def count_people(identities, className):
-#     count = 0
-#     for identity in identities:
-#         if 0 <= identity < len(className) and className[identity] == "person":
-#             count += 1
-#     return count
-
 @smart_inference_mode()
 def run(
         weights=ROOT / 'yolo.pt',  # model path or triton URL
@@ -159,6 +152,7 @@ def run(
         draw_trails = False,
 ):
     total_people = 0
+    unique_ids = set()
 
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -270,28 +264,25 @@ def run(
                     object_id = outputs[:, -1]
                     draw_boxes(ims, bbox_xyxy, draw_trails, identities, object_id)
 
+                person_outputs = [output for output in outputs if names[int(output[5])] == "person"]
                 annotator = Annotator(im0, line_width=2, pil=not ascii)
-                person_ids = set()
-                for j, output in enumerate(outputs):
-                    if j >= len(oids):
-                        continue
+                for output in person_outputs:
                     bbox_left, bbox_top, bbox_right, bbox_bottom, identity = output[:5]
                     obj_id = int(identity) if identity is not None else 0
-                    class_id = int(oids[j])
-                    cls_name = names[class_id]
-                    label = f"{cls_name} {obj_id}"
-                    
-                    # Thêm ID mới vào tập hợp person_ids nếu không trùng lặp với ID đã có
-                    if cls_name == "person" and obj_id not in person_ids:
-                        person_ids.add(obj_id)
-                        annotator.box_label([bbox_left, bbox_top, bbox_right, bbox_bottom], label, color=colors(class_id, True))
-                # Đếm số lượng người từ tập hợp person_ids
-                total_people = len(person_ids)
-                im0 = annotator.result()
+                    cls_name = "person"
 
-                # Thêm nhãn số lượng người vào hình ảnh
-                label = f"Total People: {total_people}"
-                cv2.putText(ims, label, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                    label = f"{cls_name} {obj_id}"
+                    if obj_id not in unique_ids:
+                        unique_ids.add(obj_id)
+                        annotator.box_label([bbox_left, bbox_top, bbox_right, bbox_bottom], label, color=colors(0, True))
+
+            total_people = len(unique_ids)
+            im0 = annotator.result()
+
+            # Add the total people label to the image
+            label = f"Total People: {total_people}"
+            cv2.putText(ims, label, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
 
             # Stream results
             if view_img:
@@ -320,8 +311,7 @@ def run(
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
     if update:
-        strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
-
+        strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
 
 def parse_opt():
     parser = argparse.ArgumentParser()
