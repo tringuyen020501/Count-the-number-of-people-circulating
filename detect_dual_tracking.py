@@ -6,9 +6,13 @@ from pathlib import Path
 import math
 import torch
 import numpy as np
+
+import cv2
 from deep_sort_pytorch.utils.parser import get_config
 from deep_sort_pytorch.deep_sort import DeepSort
 from collections import deque
+
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLO root directory
 if str(ROOT) not in sys.path:
@@ -47,6 +51,7 @@ def initialize_deepsort():
 
 deepsort = initialize_deepsort()
 data_deque = {}
+
 def classNames():
     cocoClassNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
                   "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
@@ -150,6 +155,7 @@ def run(
         dnn=False,  # use OpenCV DNN for ONNX inference
         vid_stride=1,  # video frame-rate stride
         draw_trails = False,
+        stream_link=None,
 ):
     total_people = 0
     unique_ids = set()
@@ -160,6 +166,13 @@ def run(
     is_url = source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
     webcam = source.isnumeric() or source.endswith('.txt') or (is_url and not is_file)
     screenshot = source.lower().startswith('screen')
+
+    # Use pafy to get YouTube live stream URL
+    if stream_link:
+        video = pafy.new(stream_link)
+        best = video.getbest(preftype="mp4")
+        source = best.url
+
     if is_url and is_file:
         source = check_file(source)  # download
 
